@@ -27,3 +27,8 @@ $app->useStoragePath('/tmp/storage');
 
 // 5. Handle the Request
 $app->handleRequest(Request::capture());
+
+if (env('DB_CONNECTION') === 'sqlite') {
+    $dbPath = __DIR__ . '/../database/database.sqlite';
+    config(['database.connections.sqlite.database' => $dbPath]);
+}
