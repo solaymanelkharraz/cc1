@@ -5,16 +5,25 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// Determine if the application is in maintenance mode...
-if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
-    require $maintenance;
-}
+// 1. Force Vercel to use /tmp for all cache/metadata files
+putenv('APP_CONFIG_CACHE=/tmp/config.php');
+putenv('APP_SERVICES_CACHE=/tmp/services.php');
+putenv('APP_PACKAGES_CACHE=/tmp/packages.php');
+putenv('APP_ROUTES_CACHE=/tmp/routes.php');
+putenv('VIEW_COMPILED_PATH=/tmp');
+putenv('CACHE_DRIVER=array');
+putenv('LOG_CHANNEL=stderr');
+putenv('SESSION_DRIVER=cookie');
 
-// Register the Composer autoloader...
+// 2. Register the Composer autoloader
 require __DIR__.'/../vendor/autoload.php';
 
-// Bootstrap Laravel and handle the request...
+// 3. Bootstrap Laravel
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
+// 4. Force the Storage Path to /tmp (Matches Jbala fix)
+$app->useStoragePath('/tmp/storage');
+
+// 5. Handle the Request
 $app->handleRequest(Request::capture());
